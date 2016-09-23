@@ -20,20 +20,22 @@
 
 #define BACKLOG 10	 // how many pending connections queue will hold
 
+// The packet recieved from the client
 struct __attribute__((__packed__)) packet {
-		char tml;
-		char reqId;
-		char opC;
-		char numOp;
-		unsigned short o1;
-		unsigned short o2;
+		char tml; // Message length in bytes
+		char reqId;	// Request Id
+		char opC; // Opcode 
+		char numOp; // Number of opperands (This doesn't ever get used)
+		unsigned short o1; // Operand 1
+		unsigned short o2; // Operand 2
 } my_packet;
 
+// The packed sent back to the client
 struct __attribute__((__packed__)) returnPacket {
-		char tml;
-		char reqId;
-		char errorCode;
-		unsigned int finAnswer;
+		char tml; // Message length in bytes
+		char reqId; // Request Id
+		char errorCode; // Error code (0 for no errors, 1 for errors)
+		unsigned int finAnswer; // Returned answer
 } return_packet;
 
 
@@ -150,37 +152,38 @@ int main(void)
 
 		char error = '0';
 
- 		char opcode = my_packet.opC;
- 		int operand1 = (int)my_packet.o1;
- 		int operand2 = (int)my_packet.o2;
- 		int answer = 0;
- 		if(opcode == '1') {
- 			answer = operand1 + operand2;
+ 		char opcode = my_packet.opC; // The number of the operation to be done.
+ 		int operand1 = (int)my_packet.o1; // The first operand
+ 		int operand2 = (int)my_packet.o2; // The second operand
+ 		unsigned int answer = 0; // The final answer to be returned. 
+ 		if(opcode == '1') { 
+ 			answer = operand1 + operand2; // Addition
  		} else if(opcode == '2') {
- 			answer = operand1 - operand2;
+ 			answer = operand1 - operand2; // Subtractions
  		} else if(opcode == '3') {
- 			answer = operand1 | operand2;
+ 			answer = operand1 | operand2; // OR
  		} else if(opcode == '4') {
- 			answer = operand1 & operand2;
+ 			answer = operand1 & operand2; // AND
  		} else if(opcode == '5') {
- 			answer = operand1 >> operand2;
+ 			answer = operand1 >> operand2; // Shift Right 
  		} else if(opcode == '6') {
- 			answer = operand1 << operand2;
+ 			answer = operand1 << operand2; // Shift Left
  		} else {
- 			error = '1';
+ 			error = '1'; // Pass back an error. 
  		}
-
- 		if(my_packet.tml != '8') {
- 			error = '1';	
+ 
+ 		if(my_packet.tml != '8') { // Check that the message is the correct lenght
+ 			error = '1'; // Throw error if not 8 bytes. 
  		}
 
  		typedef struct return_packet packet_r; 
- 		return_packet.tml = '7';
- 		return_packet.reqId = my_packet.reqId;
- 		return_packet.errorCode = error;
- 		return_packet.finAnswer = answer;
+ 		return_packet.tml = '7'; // Return packet lenght
+ 		return_packet.reqId = my_packet.reqId; // Return packet request id.
+ 		return_packet.errorCode = error; // Return packet error code. 
+ 		return_packet.finAnswer = answer; // Return packet answer. 
 
- 		char r_length = return_packet.tml;
+ 		// The below can be removed in the final version. It is for testing purposes
+ 		char r_length = return_packet.tml; 
 		char r_id = return_packet.reqId;
 		char r_error = return_packet.errorCode;
 		unsigned int r_answ = return_packet.finAnswer;
@@ -189,10 +192,10 @@ int main(void)
 		printf("ReqId: %c\n",r_id);
 		printf("ErrorCode: %c\n",r_error);
 		printf("Answer: %d\n",r_answ);
+		// The above can be removed in the final version. It is for testing purposes
 
 		if (!fork()) { // this is the child process
 			close(sockfd); // child doesn't need the listener
-			
 			if (send(new_fd, (char*)&return_packet, return_packet.tml, 0) == -1)
 				perror("send");
 			close(new_fd);

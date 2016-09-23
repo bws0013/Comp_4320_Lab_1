@@ -20,19 +20,19 @@
 #define MAXDATASIZE 100 // max number of bytes we can get at once 
 
 struct __attribute__((__packed__)) packet {
-		char tml;
-		char reqId;
-		char opC;
-		char numOp;
-		unsigned short o1;
-		unsigned short o2;
+		char tml; // Message length in bytes
+		char reqId;	// Request Id
+		char opC; // Opcode 
+		char numOp; // Number of opperands (This doesn't ever get used)
+		unsigned short o1; // Operand 1
+		unsigned short o2; // Operand 2
 } my_packet;
 
 struct __attribute__((__packed__)) returnPacket {
-		char tml;
-		char reqId;
-		char errorCode;
-		unsigned int finAnswer;
+		char tml; // Message length in bytes
+		char reqId; // Request Id
+		char errorCode; // Error code (0 for no errors, 1 for errors)
+		unsigned int finAnswer; // Returned answer
 } return_packet;
 
 // get sockaddr, IPv4 or IPv6:
